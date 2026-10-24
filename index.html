@@ -6,11 +6,15 @@
   <title>iPhone Lock Screen</title>
   <style>
     :root {
-      --bg: #000;
+      --bg: #000000;
       --text: #f5f5f5;
+      --muted: rgba(255,255,255,0.72);
       --soft: rgba(255,255,255,0.08);
       --soft2: rgba(255,255,255,0.12);
       --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.06);
+      --white: #ffffff;
+      --black: #000000;
     }
 
     * { box-sizing: border-box; }
@@ -24,6 +28,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
       overflow: hidden;
       touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -44,8 +49,8 @@
     .statusbar {
       position: absolute;
       top: max(12px, env(safe-area-inset-top));
-      left: 20px;
-      right: 20px;
+      left: 22px;
+      right: 22px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -56,12 +61,18 @@
       color: rgba(255,255,255,0.95);
     }
 
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .signal {
+      display: inline-block;
       width: 18px;
       height: 10px;
       border: 1.5px solid rgba(255,255,255,0.85);
       border-radius: 2px;
-      display: inline-block;
       position: relative;
       overflow: hidden;
     }
@@ -102,20 +113,14 @@
       background: rgba(255,255,255,0.8);
     }
 
-    .status-icons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
     .lock-screen {
       position: absolute;
       inset: 0;
       background: #000;
+      z-index: 12;
       opacity: 1;
       visibility: visible;
       transition: opacity 0.8s ease, transform 0.8s ease, visibility 0.8s ease;
-      z-index: 10;
     }
 
     .lock-screen.hidden {
@@ -1058,22 +1063,21 @@
 
     function revealAppIcons() {
       const items = document.querySelectorAll(".app-item");
-      items.forEach((item, i) => {
+      items.forEach((item) => {
         const delay = Number(item.dataset.delay || 0);
         setTimeout(() => item.classList.add("visible"), delay);
       });
     }
 
     function unlockPhone() {
-      if (input !== correctCode) {
+      if (input === correctCode) {
+        lockScreen.classList.add("hidden");
+        homeScreen.classList.add("active");
+        setTimeout(revealAppIcons, 160);
+      } else {
         input = "";
         renderDots();
-        return;
       }
-
-      lockScreen.classList.add("hidden");
-      homeScreen.classList.add("active");
-      setTimeout(revealAppIcons, 160);
     }
 
     function handleKeyPress(keyEl) {
@@ -1141,7 +1145,6 @@
     updateClock();
     setInterval(updateClock, 1000);
 
-    // weather fallback
     async function loadWeather() {
       try {
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,relative_humidity_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul&forecast_days=1");
