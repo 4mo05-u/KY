@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Touch Unlock iPhone</title>
+  <title>Touch Unlock Home</title>
   <style>
     :root {
       --bg: #000000;
-      --text: #f5f5f5;
-      --muted: rgba(255,255,255,0.7);
+      --white: #ffffff;
+      --text: rgba(255,255,255,0.95);
+      --muted: rgba(255,255,255,0.72);
       --soft: rgba(255,255,255,0.08);
-      --soft2: rgba(255,255,255,0.14);
+      --soft2: rgba(255,255,255,0.12);
       --glass: rgba(255,255,255,0.04);
       --glass-border: rgba(255,255,255,0.06);
     }
@@ -22,7 +23,7 @@
       width: 100%;
       height: 100%;
       background: #000;
-      color: var(--text);
+      color: var(--white);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
       overflow: hidden;
       touch-action: manipulation;
@@ -124,7 +125,7 @@
 
     .lock-screen.hidden {
       opacity: 0;
-      transform: translateY(-12px) scale(1.02);
+      transform: translateY(-10px) scale(1.02);
       visibility: hidden;
       pointer-events: none;
     }
@@ -194,7 +195,7 @@
 
     .weather-box {
       position: absolute;
-      top: 72px;
+      top: 70px;
       left: 20px;
       right: 20px;
       padding: 18px 18px 14px;
