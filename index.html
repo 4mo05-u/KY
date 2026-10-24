@@ -3,18 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>iPhone Lock Screen</title>
+  <title>Touch Unlock iPhone</title>
   <style>
     :root {
-      --bg: #000000;
+      --bg: #000;
       --text: #f5f5f5;
-      --muted: rgba(255,255,255,0.72);
       --soft: rgba(255,255,255,0.08);
-      --soft2: rgba(255,255,255,0.12);
+      --soft2: rgba(255,255,255,0.14);
       --glass: rgba(255,255,255,0.04);
       --glass-border: rgba(255,255,255,0.06);
-      --white: #ffffff;
-      --black: #000000;
     }
 
     * { box-sizing: border-box; }
@@ -49,8 +46,8 @@
     .statusbar {
       position: absolute;
       top: max(12px, env(safe-area-inset-top));
-      left: 22px;
-      right: 22px;
+      left: 20px;
+      right: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -118,14 +115,12 @@
       inset: 0;
       background: #000;
       z-index: 12;
-      opacity: 1;
-      visibility: visible;
       transition: opacity 0.8s ease, transform 0.8s ease, visibility 0.8s ease;
     }
 
     .lock-screen.hidden {
       opacity: 0;
-      transform: translateY(-12px) scale(1.02);
+      transform: translateY(-10px) scale(1.02);
       visibility: hidden;
       pointer-events: none;
     }
@@ -136,16 +131,12 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 80px 24px 26px 24px;
-    }
-
-    .clock-block {
+      padding: 82px 24px 30px;
       text-align: center;
-      margin-top: 20px;
     }
 
     .time {
-      font-size: clamp(52px, 11vw, 82px);
+      font-size: clamp(54px, 11vw, 88px);
       line-height: 1;
       font-weight: 300;
       letter-spacing: -4px;
@@ -160,96 +151,14 @@
       font-weight: 500;
     }
 
-    .passcode-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      margin-top: 12px;
-    }
-
-    .touch-text {
+    .unlock-hint {
+      margin-top: 10px;
       font-size: 17px;
-      color: rgba(255,255,255,0.85);
-      text-align: center;
+      color: rgba(255,255,255,0.9);
       font-weight: 500;
-    }
-
-    .dots {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      align-items: center;
-      min-height: 18px;
-    }
-
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(255,255,255,0.9);
-      background: transparent;
-      transition: all 0.18s ease;
-    }
-
-    .dot.filled {
-      background: white;
-      border-color: white;
-      transform: scale(1.08);
-      box-shadow: 0 0 12px rgba(255,255,255,0.4);
-    }
-
-    .keypad {
-      width: min(320px, 86vw);
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px 16px;
-      margin: 6px auto 0 auto;
-    }
-
-    .key {
-      width: min(23vw, 74px);
-      height: min(23vw, 74px);
-      max-width: 74px;
-      max-height: 74px;
-      margin: 0 auto;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.03);
-      display: grid;
-      place-items: center;
-      color: rgba(255,255,255,0.98);
-      font-size: clamp(26px, 5vw, 30px);
+      cursor: pointer;
       user-select: none;
-      outline: none;
       -webkit-tap-highlight-color: transparent;
-      transition: transform 0.08s ease, background 0.12s ease, box-shadow 0.12s ease;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
-    }
-
-    .key:active,
-    .key.pressed {
-      transform: scale(0.94);
-      background: rgba(255,255,255,0.14);
-      box-shadow: 0 0 18px rgba(255,255,255,0.08);
-    }
-
-    .key.action {
-      font-size: 16px;
-      background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.8);
-    }
-
-    .key.zero {
-      font-size: 30px;
-    }
-
-    .emergency {
-      text-align: center;
-      color: rgba(255,255,255,0.8);
-      font-size: 15px;
-      margin-bottom: 4px;
-      letter-spacing: 0.2px;
     }
 
     .home-screen {
@@ -283,7 +192,7 @@
 
     .weather-box {
       position: absolute;
-      top: 72px;
+      top: 70px;
       left: 20px;
       right: 20px;
       padding: 18px 18px 14px;
@@ -345,7 +254,7 @@
 
     .home-date {
       position: absolute;
-      top: 222px;
+      top: 224px;
       left: 0;
       right: 0;
       text-align: center;
@@ -739,40 +648,12 @@
       </div>
 
       <div class="lock-inner">
-        <div class="clock-block">
+        <div>
           <div class="time" id="lockTime">9:41</div>
           <div class="date" id="lockDate">금요일, 10월 24일</div>
         </div>
 
-        <div class="passcode-wrap">
-          <div class="touch-text">Touch ID 또는 비밀번호</div>
-          <div class="dots" id="codeDots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-
-          <div class="keypad" id="keypad">
-            <button class="key" data-value="1" type="button">1</button>
-            <button class="key" data-value="2" type="button">2</button>
-            <button class="key" data-value="3" type="button">3</button>
-
-            <button class="key" data-value="4" type="button">4</button>
-            <button class="key" data-value="5" type="button">5</button>
-            <button class="key" data-value="6" type="button">6</button>
-
-            <button class="key" data-value="7" type="button">7</button>
-            <button class="key" data-value="8" type="button">8</button>
-            <button class="key" data-value="9" type="button">9</button>
-
-            <button class="key action" data-action="clear" type="button">삭제</button>
-            <button class="key zero" data-value="0" type="button">0</button>
-            <button class="key action" data-action="unlock" type="button">확인</button>
-          </div>
-        </div>
-
-        <div class="emergency">긴급</div>
+        <div class="unlock-hint" id="unlockHint">화면을 터치하면 잠금 해제</div>
       </div>
     </div>
 
@@ -926,17 +807,25 @@
   </div>
 
   <script>
-    const correctCode = "0628";
-    let input = "";
-
     const lockScreen = document.getElementById("lockScreen");
     const homeScreen = document.getElementById("homeScreen");
+    const unlockHint = document.getElementById("unlockHint");
     const overlay = document.getElementById("overlay");
     const sheetBody = document.getElementById("sheetBody");
     const sheetTitle = document.getElementById("sheetTitle");
     const closeBtn = document.getElementById("closeBtn");
-    const codeDots = [...document.querySelectorAll(".dot")];
-    const keypad = document.getElementById("keypad");
+
+    function noInputUnlock() {
+      lockScreen.classList.add("hidden");
+      homeScreen.classList.add("active");
+      setTimeout(revealAppIcons, 160);
+    }
+
+    unlockHint.addEventListener("click", noInputUnlock);
+    unlockHint.addEventListener("touchstart", noInputUnlock);
+
+    lockScreen.addEventListener("click", noInputUnlock);
+    lockScreen.addEventListener("touchstart", noInputUnlock);
 
     function profileSvg(color1, color2) {
       const svg = `
@@ -963,12 +852,6 @@
       { name: "010-0404-0606", preview: "휴대폰 문자 확인했어", time: "월", avatar: profileSvg("#d9d9ff", "#8a8af0") },
       { name: "1544-3211", preview: "고객센터 안내입니다.", time: "월", avatar: profileSvg("#d8f0ff", "#6bb3ea") }
     ];
-
-    function renderDots() {
-      codeDots.forEach((dot, index) => {
-        dot.classList.toggle("filled", index < input.length);
-      });
-    }
 
     function updateClock() {
       const now = new Date();
@@ -1069,81 +952,16 @@
       });
     }
 
-    function unlockPhone() {
-      if (input === correctCode) {
-        lockScreen.classList.add("hidden");
-        homeScreen.classList.add("active");
-        setTimeout(revealAppIcons, 160);
-      } else {
-        input = "";
-        renderDots();
-      }
-    }
-
-    function handleKeyPress(keyEl) {
-      keyEl.classList.remove("pressed");
-      void keyEl.offsetWidth;
-      keyEl.classList.add("pressed");
-      setTimeout(() => keyEl.classList.remove("pressed"), 120);
-
-      const value = keyEl.dataset.value;
-      const action = keyEl.dataset.action;
-
-      if (action === "clear") {
-        input = "";
-        renderDots();
-        return;
-      }
-
-      if (action === "unlock") {
-        unlockPhone();
-        return;
-      }
-
-      if (value && input.length < 4) {
-        input += value;
-        renderDots();
-
-        if (input.length === 4) {
-          setTimeout(() => {
-            unlockPhone();
-          }, 150);
-        }
-      }
-    }
-
-    keypad.addEventListener("click", (event) => {
-      const key = event.target.closest(".key");
-      if (!key) return;
-      handleKeyPress(key);
-    });
-
-    keypad.addEventListener("pointerdown", (event) => {
-      const key = event.target.closest(".key");
-      if (!key) return;
-      key.classList.add("pressed");
-    });
-
-    keypad.addEventListener("pointerup", (event) => {
-      const key = event.target.closest(".key");
-      if (!key) return;
-      key.classList.remove("pressed");
-    });
-
     document.querySelectorAll(".app").forEach((app) => {
       app.addEventListener("click", () => {
-        const name = app.dataset.app || "앱";
-        if (name === "메시지") {
+        const appName = app.dataset.app || "앱";
+        if (appName === "메시지") {
           showMessageList();
         } else {
-          showAppOverlay(name);
+          showAppOverlay(appName);
         }
       });
     });
-
-    renderDots();
-    updateClock();
-    setInterval(updateClock, 1000);
 
     async function loadWeather() {
       try {
@@ -1192,7 +1010,9 @@
       }
     }
 
+    updateClock();
     loadWeather();
+    setInterval(updateClock, 1000);
   </script>
 </body>
 </html>
