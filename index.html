@@ -6,8 +6,9 @@
   <title>Touch Unlock iPhone</title>
   <style>
     :root {
-      --bg: #000;
+      --bg: #000000;
       --text: #f5f5f5;
+      --muted: rgba(255,255,255,0.7);
       --soft: rgba(255,255,255,0.08);
       --soft2: rgba(255,255,255,0.14);
       --glass: rgba(255,255,255,0.04);
@@ -115,12 +116,15 @@
       inset: 0;
       background: #000;
       z-index: 12;
-      transition: opacity 0.8s ease, transform 0.8s ease, visibility 0.8s ease;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.85s ease, transform 0.85s ease, visibility 0.85s ease;
+      cursor: pointer;
     }
 
     .lock-screen.hidden {
       opacity: 0;
-      transform: translateY(-10px) scale(1.02);
+      transform: translateY(-12px) scale(1.02);
       visibility: hidden;
       pointer-events: none;
     }
@@ -131,12 +135,12 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 82px 24px 30px;
+      padding: 84px 24px 32px;
       text-align: center;
     }
 
     .time {
-      font-size: clamp(54px, 11vw, 88px);
+      font-size: clamp(54px, 11vw, 82px);
       line-height: 1;
       font-weight: 300;
       letter-spacing: -4px;
@@ -154,11 +158,9 @@
     .unlock-hint {
       margin-top: 10px;
       font-size: 17px;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255,255,255,0.85);
       font-weight: 500;
-      cursor: pointer;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
     }
 
     .home-screen {
@@ -192,7 +194,7 @@
 
     .weather-box {
       position: absolute;
-      top: 70px;
+      top: 72px;
       left: 20px;
       right: 20px;
       padding: 18px 18px 14px;
@@ -815,17 +817,16 @@
     const sheetTitle = document.getElementById("sheetTitle");
     const closeBtn = document.getElementById("closeBtn");
 
-    function noInputUnlock() {
+    function unlockPhone() {
       lockScreen.classList.add("hidden");
       homeScreen.classList.add("active");
       setTimeout(revealAppIcons, 160);
     }
 
-    unlockHint.addEventListener("click", noInputUnlock);
-    unlockHint.addEventListener("touchstart", noInputUnlock);
-
-    lockScreen.addEventListener("click", noInputUnlock);
-    lockScreen.addEventListener("touchstart", noInputUnlock);
+    unlockHint.addEventListener("click", unlockPhone);
+    unlockHint.addEventListener("touchstart", unlockPhone);
+    lockScreen.addEventListener("click", unlockPhone);
+    lockScreen.addEventListener("touchstart", unlockPhone);
 
     function profileSvg(color1, color2) {
       const svg = `
@@ -936,10 +937,7 @@
       overlay.classList.add("show");
     }
 
-    closeBtn.addEventListener("click", () => {
-      overlay.classList.remove("show");
-    });
-
+    closeBtn.addEventListener("click", () => overlay.classList.remove("show"));
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) overlay.classList.remove("show");
     });
