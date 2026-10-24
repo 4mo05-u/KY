@@ -2,18 +2,15 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iPhone Lock Screen with Messages</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>iPhone Lock Screen</title>
   <style>
     :root {
-      --bg: #0b0b0d;
-      --black: #000000;
-      --white: #f5f5f5;
-      --muted: rgba(255,255,255,0.72);
-      --key-bg: rgba(255,255,255,0.08);
-      --key-bg-strong: rgba(255,255,255,0.14);
+      --bg: #000;
+      --text: #f5f5f5;
+      --soft: rgba(255,255,255,0.08);
+      --soft2: rgba(255,255,255,0.12);
       --glass: rgba(255,255,255,0.04);
-      --glass-border: rgba(255,255,255,0.06);
     }
 
     * { box-sizing: border-box; }
@@ -22,97 +19,49 @@
       margin: 0;
       width: 100%;
       height: 100%;
-      background: #111;
+      background: #000;
+      color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
-      color: var(--white);
       overflow: hidden;
+      touch-action: manipulation;
     }
 
     body {
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overscroll-behavior: none;
     }
 
-    .iphone {
+    .phone {
       position: relative;
-      width: 390px;
-      height: 844px;
-      background: #0d0d10;
-      border-radius: 42px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,0.04),
-        0 28px 80px rgba(0,0,0,0.8);
-    }
-
-    .side-button {
-      position: absolute;
-      width: 4px;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.13);
-      z-index: 50;
-    }
-
-    .side-button.left {
-      left: -3px;
-      top: 116px;
-      height: 110px;
-    }
-
-    .side-button.right {
-      right: -3px;
-      top: 170px;
-      height: 144px;
-    }
-
-    .screen {
-      position: absolute;
-      inset: 0;
-      border-radius: 42px;
-      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
       background: #000;
-    }
-
-    .notch {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      height: 32px;
-      background: #000;
-      border-radius: 0 0 18px 18px;
-      z-index: 60;
+      overflow: hidden;
     }
 
     .statusbar {
       position: absolute;
-      top: 16px;
+      top: max(12px, env(safe-area-inset-top));
       left: 20px;
       right: 20px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      z-index: 20;
+      align-items: center;
+      z-index: 30;
       font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.2px;
       color: rgba(255,255,255,0.95);
     }
 
-    .status-icons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
     .signal {
-      display: inline-block;
       width: 18px;
       height: 10px;
-      border: 1.4px solid rgba(255,255,255,0.85);
+      border: 1.5px solid rgba(255,255,255,0.85);
       border-radius: 2px;
+      display: inline-block;
       position: relative;
       overflow: hidden;
     }
@@ -121,15 +70,15 @@
       content: "";
       position: absolute;
       inset: 2px;
-      border-radius: 1px;
       background: rgba(255,255,255,0.9);
+      border-radius: 1px;
     }
 
     .battery {
       position: relative;
       width: 24px;
       height: 12px;
-      border: 1.4px solid rgba(255,255,255,0.85);
+      border: 1.5px solid rgba(255,255,255,0.85);
       border-radius: 3px;
       overflow: hidden;
     }
@@ -153,61 +102,56 @@
       background: rgba(255,255,255,0.8);
     }
 
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .lock-screen {
       position: absolute;
       inset: 0;
       background: #000;
-      z-index: 12;
-      transition: opacity .9s ease, transform 1s cubic-bezier(.19,1,.22,1), filter .9s ease, visibility .9s ease;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.8s ease, transform 0.8s ease, visibility 0.8s ease;
+      z-index: 10;
     }
 
     .lock-screen.hidden {
       opacity: 0;
-      transform: translateY(-18px) scale(1.02);
-      filter: blur(1px);
+      transform: translateY(-12px) scale(1.02);
       visibility: hidden;
       pointer-events: none;
     }
 
-    .lock-screen::before {
-      content: "";
+    .lock-inner {
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(circle at center 35%, rgba(255,255,255,0.08), transparent 23%),
-        linear-gradient(to bottom, rgba(255,255,255,0.03), transparent 28%, rgba(255,255,255,0.01));
-      pointer-events: none;
-    }
-
-    .lock-content {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 66px 24px 32px;
+      padding: 80px 24px 26px 24px;
     }
 
-    .time-block {
+    .clock-block {
       text-align: center;
-      margin-top: 22px;
+      margin-top: 20px;
     }
 
     .time {
-      font-size: 74px;
+      font-size: clamp(52px, 11vw, 82px);
       line-height: 1;
       font-weight: 300;
       letter-spacing: -4px;
       color: rgba(255,255,255,0.95);
-      text-shadow: 0 0 10px rgba(255,255,255,0.08);
     }
 
     .date {
       margin-top: 10px;
-      font-size: 18px;
-      letter-spacing: 0.2px;
+      font-size: clamp(14px, 2vw, 18px);
       color: rgba(255,255,255,0.8);
+      letter-spacing: 0.2px;
       font-weight: 500;
     }
 
@@ -216,82 +160,83 @@
       flex-direction: column;
       align-items: center;
       gap: 16px;
+      margin-top: 12px;
     }
 
     .touch-text {
       font-size: 17px;
-      font-weight: 500;
-      letter-spacing: 0.15px;
-      color: rgba(255,255,255,0.92);
+      color: rgba(255,255,255,0.85);
       text-align: center;
+      font-weight: 500;
     }
 
-    .passcode {
+    .dots {
       display: flex;
-      align-items: center;
-      justify-content: center;
       gap: 12px;
+      justify-content: center;
+      align-items: center;
       min-height: 18px;
     }
 
-    .passcode .dot {
+    .dot {
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      border: 1.6px solid rgba(255,255,255,0.92);
+      border: 1.5px solid rgba(255,255,255,0.9);
       background: transparent;
       transition: all 0.18s ease;
     }
 
-    .passcode .dot.filled {
-      background: #fff;
-      border-color: #fff;
-      box-shadow: 0 0 14px rgba(255,255,255,0.35);
+    .dot.filled {
+      background: white;
+      border-color: white;
       transform: scale(1.08);
+      box-shadow: 0 0 12px rgba(255,255,255,0.4);
     }
 
     .keypad {
-      width: 100%;
+      width: min(320px, 86vw);
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 14px 18px;
-      padding: 8px 18px 0;
+      gap: 18px 16px;
+      margin: 6px auto 0 auto;
     }
 
     .key {
-      width: 74px;
-      height: 74px;
+      width: min(23vw, 74px);
+      height: min(23vw, 74px);
+      max-width: 74px;
+      max-height: 74px;
       margin: 0 auto;
       border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.03);
       display: grid;
       place-items: center;
-      background: var(--key-bg);
-      border: 1px solid rgba(255,255,255,0.03);
       color: rgba(255,255,255,0.98);
-      cursor: pointer;
+      font-size: clamp(26px, 5vw, 30px);
       user-select: none;
-      transition: transform 0.1s ease, background 0.12s ease, box-shadow 0.12s ease, filter 0.1s ease;
-      font-size: 30px;
-      font-weight: 400;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.08s ease, background 0.12s ease, box-shadow 0.12s ease;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
     }
 
-    .key:active, .key.pressed {
-      transform: scale(0.92);
-      background: var(--key-bg-strong);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 18px rgba(255,255,255,0.08);
-      filter: brightness(1.12);
+    .key:active,
+    .key.pressed {
+      transform: scale(0.94);
+      background: rgba(255,255,255,0.14);
+      box-shadow: 0 0 18px rgba(255,255,255,0.08);
     }
 
     .key.action {
-      font-size: 18px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.8);
+      font-size: 16px;
       background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.8);
     }
 
     .key.zero {
-      font-size: 31px;
+      font-size: 30px;
     }
 
     .emergency {
@@ -299,7 +244,7 @@
       color: rgba(255,255,255,0.8);
       font-size: 15px;
       margin-bottom: 4px;
-      letter-spacing: 0.15px;
+      letter-spacing: 0.2px;
     }
 
     .home-screen {
@@ -308,8 +253,8 @@
       background: #000;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.7s ease, visibility 0.7s ease;
-      z-index: 14;
+      transition: opacity 0.75s ease, visibility 0.75s ease;
+      z-index: 20;
     }
 
     .home-screen.active {
@@ -317,43 +262,32 @@
       visibility: visible;
     }
 
-    .home-screen::before {
-      content: "";
+    .home-topbar {
       position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.09), transparent 20%),
-        linear-gradient(to bottom, rgba(255,255,255,0.02), transparent 30%, rgba(255,255,255,0.015));
-      pointer-events: none;
-    }
-
-    .home-header {
-      position: absolute;
-      top: 18px;
-      left: 24px;
-      right: 24px;
+      top: max(12px, env(safe-area-inset-top));
+      left: 20px;
+      right: 20px;
+      z-index: 5;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      z-index: 2;
+      align-items: center;
+      color: rgba(255,255,255,0.92);
       font-size: 12px;
       font-weight: 600;
-      color: rgba(255,255,255,0.92);
     }
 
-    .weather-panel {
+    .weather-box {
       position: absolute;
-      top: 70px;
-      left: 26px;
-      right: 26px;
+      top: 72px;
+      left: 20px;
+      right: 20px;
       padding: 18px 18px 14px;
-      border-radius: 26px;
+      border-radius: 24px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.04);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       z-index: 2;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
     }
 
     .weather-top {
@@ -376,16 +310,16 @@
 
     .weather-main {
       display: flex;
-      align-items: end;
+      align-items: flex-end;
       gap: 10px;
       margin-top: 12px;
     }
 
     .weather-temp {
       font-size: 42px;
+      line-height: 1;
       font-weight: 600;
       letter-spacing: -2px;
-      line-height: 1;
     }
 
     .weather-desc {
@@ -396,33 +330,30 @@
 
     .weather-detail {
       margin-top: 12px;
-      font-size: 11.5px;
-      color: rgba(255,255,255,0.72);
       display: flex;
       justify-content: space-between;
-      letter-spacing: 0.1px;
-      gap: 6px;
       flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.72);
     }
 
     .home-date {
       position: absolute;
-      top: 224px;
+      top: 222px;
       left: 0;
       right: 0;
       text-align: center;
-      z-index: 2;
       font-size: 22px;
-      font-weight: 500;
       color: rgba(255,255,255,0.9);
-      letter-spacing: 0.1px;
+      z-index: 2;
     }
 
     .notifications {
       position: absolute;
-      top: 266px;
-      left: 22px;
-      right: 22px;
+      top: 262px;
+      left: 18px;
+      right: 18px;
       z-index: 2;
       display: flex;
       flex-direction: column;
@@ -438,7 +369,6 @@
       border-radius: 18px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.04);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
     }
 
     .notice-left {
@@ -446,6 +376,7 @@
       align-items: center;
       gap: 12px;
       min-width: 0;
+      flex: 1;
     }
 
     .notice-icon {
@@ -455,12 +386,8 @@
       display: grid;
       place-items: center;
       font-size: 14px;
-      font-weight: 700;
       background: rgba(255,255,255,0.06);
-    }
-
-    .notice-text {
-      min-width: 0;
+      flex-shrink: 0;
     }
 
     .notice-title {
@@ -475,14 +402,17 @@
     .notice-sub {
       font-size: 10.5px;
       color: rgba(255,255,255,0.68);
-      margin-top: 2px;
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .notice-time {
       font-size: 10px;
-      color: rgba(255,255,255,0.60);
+      color: rgba(255,255,255,0.62);
       white-space: nowrap;
-      margin-left: 10px;
+      flex-shrink: 0;
     }
 
     .apps {
@@ -491,8 +421,8 @@
       right: 18px;
       top: 392px;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px 12px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px 10px;
       z-index: 2;
     }
 
@@ -501,9 +431,8 @@
       flex-direction: column;
       align-items: center;
       opacity: 0;
-      transform: translateY(16px) scale(0.95);
+      transform: translateY(16px) scale(0.96);
       transition: opacity 0.45s ease, transform 0.45s ease;
-      will-change: transform, opacity;
     }
 
     .app-item.visible {
@@ -517,14 +446,15 @@
       border-radius: 18px;
       display: grid;
       place-items: center;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 14px rgba(0,0,0,0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 14px rgba(0,0,0,0.18);
       cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
     }
 
     .app:active {
       transform: scale(0.96);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 10px rgba(0,0,0,0.18);
     }
 
     .app-icon {
@@ -533,20 +463,11 @@
       display: grid;
       place-items: center;
       border-radius: 18px;
-      font-weight: 700;
       font-size: 17px;
+      font-weight: 700;
       color: rgba(255,255,255,0.96);
-      position: relative;
       overflow: hidden;
-      user-select: none;
-    }
-
-    .app-icon::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.12), transparent 40%);
-      pointer-events: none;
+      position: relative;
     }
 
     .app-name {
@@ -554,7 +475,6 @@
       font-size: 11px;
       color: rgba(255,255,255,0.88);
       text-align: center;
-      letter-spacing: 0.1px;
       white-space: nowrap;
     }
 
@@ -563,8 +483,6 @@
     .gradient-line { background: linear-gradient(135deg, #86efaf, #22c55e 46%, #16a34a); }
     .gradient-insta { background: linear-gradient(135deg, #ffd166, #ff8a4c 26%, #e74c84 56%, #8b5cf6 80%, #4f46e5); }
     .gradient-blue { background: linear-gradient(135deg, #8bb8ff, #5a7dff 48%, #3a5fe0); }
-    .gradient-pink { background: linear-gradient(135deg, #ff9ec4, #ff5ca6 50%, #ef4694); }
-    .gradient-purple { background: linear-gradient(135deg, #d0c1ff, #a88cff 50%, #7e63ea); }
     .gradient-gray { background: linear-gradient(135deg, #e5eaef, #adb8c5 54%, #7d8898); }
     .gradient-red { background: linear-gradient(135deg, #ffadb6, #ff7385 52%, #ef4658); }
     .gradient-sky { background: linear-gradient(135deg, #bfeaff, #7ecfff 52%, #46a7ff); }
@@ -573,8 +491,8 @@
       position: absolute;
       left: 18px;
       right: 18px;
-      bottom: 22px;
-      height: 82px;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      height: 84px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -592,62 +510,42 @@
       transform: none;
     }
 
-    .home-indicator {
-      position: absolute;
-      left: 50%;
-      bottom: 8px;
-      transform: translateX(-50%);
-      width: 138px;
-      height: 5px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.7);
-      z-index: 45;
-    }
-
-    .app-overlay {
+    .overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.78);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(24px);
-      transition: opacity 0.28s ease, transform 0.38s cubic-bezier(.22,1,.36,1), visibility 0.28s ease;
-      z-index: 70;
+      background: rgba(0,0,0,0.8);
+      z-index: 80;
       display: flex;
       align-items: center;
       justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
+      transition: opacity 0.28s ease, transform 0.38s ease, visibility 0.28s ease;
     }
 
-    .app-overlay.active {
+    .overlay.show {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
     }
 
-    .app-sheet {
-      width: 82%;
-      height: 72%;
+    .sheet {
+      width: min(86vw, 340px);
+      height: min(76vh, 620px);
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 30px;
-      box-shadow: 0 18px 46px rgba(0,0,0,0.45);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
       overflow: hidden;
       position: relative;
-      transform: translateY(12px);
-      opacity: 0;
-      transition: transform 0.38s cubic-bezier(.22,1,.36,1), opacity 0.38s ease;
-    }
-
-    .app-overlay.active .app-sheet {
-      transform: translateY(0);
-      opacity: 1;
     }
 
     .sheet-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 20px 16px;
+      padding: 18px 20px 14px 20px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.02);
     }
@@ -655,51 +553,40 @@
     .sheet-title {
       font-size: 16px;
       font-weight: 600;
-      color: rgba(255,255,255,0.94);
+      color: rgba(255,255,255,0.95);
     }
 
-    .close-btn {
+    .closeBtn {
       width: 32px;
       height: 32px;
       border-radius: 50%;
       display: grid;
       place-items: center;
       background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.05);
       color: rgba(255,255,255,0.9);
       font-size: 18px;
-      border: 1px solid rgba(255,255,255,0.05);
       cursor: pointer;
     }
 
     .sheet-body {
-      padding: 0;
       height: calc(100% - 76px);
-      display: flex;
-      flex-direction: column;
+      overflow: auto;
       background: rgba(255,255,255,0.015);
     }
 
-    .sheet-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .sheet-top {
       padding: 16px 18px 12px;
-      color: rgba(255,255,255,0.9);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,0.84);
       font-weight: 700;
-    }
-
-    .sheet-topbar .left {
       font-size: 14px;
-      letter-spacing: 0.15px;
     }
 
-    .sheet-topbar .right {
-      font-size: 18px;
-      opacity: 0.8;
-    }
-
-    .msg-search {
-      margin: 0 18px 12px;
+    .searchBox {
+      margin: 0 18px 12px 18px;
       height: 36px;
       border-radius: 18px;
       background: rgba(255,255,255,0.08);
@@ -713,9 +600,8 @@
 
     .msg-list {
       list-style: none;
+      padding: 0 10px 10px 10px;
       margin: 0;
-      padding: 0 10px 10px;
-      overflow: auto;
     }
 
     .msg-item {
@@ -735,13 +621,10 @@
       width: 42px;
       height: 42px;
       border-radius: 50%;
-      display: grid;
-      place-items: center;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
       flex-shrink: 0;
     }
 
@@ -771,273 +654,269 @@
     .msg-time {
       font-size: 10.5px;
       color: rgba(255,255,255,0.62);
-      padding-left: 8px;
+      flex-shrink: 0;
+      margin-left: 8px;
       white-space: nowrap;
     }
 
-    .app-overlay.generic .sheet-body {
-      padding: 28px 22px 18px;
+    .generic-sheet {
+      padding: 26px 22px 18px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 18px;
+      height: calc(100% - 76px);
     }
 
-    .sheet-icon {
-      width: 94px;
-      height: 94px;
-      border-radius: 28px;
+    .generic-icon {
+      width: 90px;
+      height: 90px;
+      border-radius: 26px;
       display: grid;
       place-items: center;
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 700;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 12px 28px rgba(0,0,0,0.25);
     }
 
-    .sheet-name {
-      text-align: center;
+    .generic-name {
       font-size: 22px;
       font-weight: 700;
       color: rgba(255,255,255,0.96);
     }
 
-    .sheet-quote {
-      text-align: center;
-      color: rgba(255,255,255,0.72);
+    .generic-text {
       font-size: 14px;
       line-height: 1.6;
-      max-width: 240px;
+      color: rgba(255,255,255,0.72);
+      text-align: center;
+      max-width: 220px;
     }
 
-    .sheet-badges {
+    .badges {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
     }
 
     .badge {
       padding: 8px 12px;
+      border-radius: 999px;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 999px;
-      font-size: 11px;
       color: rgba(255,255,255,0.74);
+      font-size: 11px;
     }
 
-    @keyframes keypadPulse {
-      0% { transform: scale(1); }
-      30% { transform: scale(0.96); }
-      100% { transform: scale(1); }
-    }
-
-    .key.animate {
-      animation: keypadPulse 0.18s ease;
-    }
-
-    @media (max-width: 430px) {
-      .iphone { transform: scale(0.9); }
+    @media (max-width: 420px) {
+      .dock .app {
+        width: 52px;
+        height: 52px;
+      }
+      .app {
+        width: 62px;
+        height: 62px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="iphone">
-    <div class="side-button left"></div>
-    <div class="side-button right"></div>
-
-    <div class="screen">
-      <div class="notch"></div>
-
-      <div class="lock-screen" id="lockScreen">
-        <div class="statusbar">
-          <span id="lockStatusTime">9:41</span>
-          <div class="status-icons">
-            <span class="signal"></span>
-            <span class="battery"></span>
-          </div>
-        </div>
-
-        <div class="lock-content">
-          <div class="time-block">
-            <div class="time" id="lockTime">9:41</div>
-            <div class="date" id="lockDate">금요일, 10월 24일</div>
-          </div>
-
-          <div class="passcode-wrap">
-            <div class="touch-text">Touch ID 또는 비밀번호</div>
-            <div class="passcode" id="passcodeDots">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </div>
-
-            <div class="keypad" id="keypad">
-              <div class="key" data-value="1">1</div>
-              <div class="key" data-value="2">2</div>
-              <div class="key" data-value="3">3</div>
-
-              <div class="key" data-value="4">4</div>
-              <div class="key" data-value="5">5</div>
-              <div class="key" data-value="6">6</div>
-
-              <div class="key" data-value="7">7</div>
-              <div class="key" data-value="8">8</div>
-              <div class="key" data-value="9">9</div>
-
-              <div class="key action" data-action="clear">삭제</div>
-              <div class="key zero" data-value="0">0</div>
-              <div class="key action" data-action="unlock">확인</div>
-            </div>
-          </div>
-
-          <div class="emergency">긴급</div>
+  <div class="phone">
+    <div class="lock-screen" id="lockScreen">
+      <div class="statusbar">
+        <span id="lockTimeText">9:41</span>
+        <div class="status-icons">
+          <span class="signal"></span>
+          <span class="battery"></span>
         </div>
       </div>
 
-      <div class="home-screen" id="homeScreen">
-        <div class="home-header">
-          <span id="homeStatusTime">9:41</span>
-          <div class="status-icons">
-            <span class="signal"></span>
-            <span class="battery"></span>
+      <div class="lock-inner">
+        <div class="clock-block">
+          <div class="time" id="lockTime">9:41</div>
+          <div class="date" id="lockDate">금요일, 10월 24일</div>
+        </div>
+
+        <div class="passcode-wrap">
+          <div class="touch-text">Touch ID 또는 비밀번호</div>
+          <div class="dots" id="codeDots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+
+          <div class="keypad" id="keypad">
+            <button class="key" data-value="1" type="button">1</button>
+            <button class="key" data-value="2" type="button">2</button>
+            <button class="key" data-value="3" type="button">3</button>
+
+            <button class="key" data-value="4" type="button">4</button>
+            <button class="key" data-value="5" type="button">5</button>
+            <button class="key" data-value="6" type="button">6</button>
+
+            <button class="key" data-value="7" type="button">7</button>
+            <button class="key" data-value="8" type="button">8</button>
+            <button class="key" data-value="9" type="button">9</button>
+
+            <button class="key action" data-action="clear" type="button">삭제</button>
+            <button class="key zero" data-value="0" type="button">0</button>
+            <button class="key action" data-action="unlock" type="button">확인</button>
           </div>
         </div>
 
-        <div class="weather-panel">
-          <div class="weather-top">
-            <div class="weather-city">서울</div>
-            <div class="weather-icon" id="weatherIcon">☀️</div>
-          </div>
+        <div class="emergency">긴급</div>
+      </div>
+    </div>
 
-          <div class="weather-main">
-            <div class="weather-temp" id="weatherTemp">19°</div>
-            <div class="weather-desc" id="weatherDesc">맑음</div>
-          </div>
+    <div class="home-screen" id="homeScreen">
+      <div class="home-topbar">
+        <span id="homeTime">9:41</span>
+        <div class="status-icons">
+          <span class="signal"></span>
+          <span class="battery"></span>
+        </div>
+      </div>
 
-          <div class="weather-detail">
-            <span id="weatherHigh">최고 22°</span>
-            <span id="weatherLow">최저 14°</span>
-            <span id="weatherHumidity">습도 44%</span>
-          </div>
+      <div class="weather-box">
+        <div class="weather-top">
+          <div class="weather-city">서울</div>
+          <div class="weather-icon" id="weatherIcon">☀️</div>
         </div>
 
-        <div class="home-date" id="homeDate">10월 24일 금요일</div>
-
-        <div class="notifications">
-          <div class="notice">
-            <div class="notice-left">
-              <div class="notice-icon">📣</div>
-              <div class="notice-text">
-                <div class="notice-title">오늘 일정</div>
-                <div class="notice-sub">오후 3:00 회의</div>
-              </div>
-            </div>
-            <div class="notice-time">지금</div>
-          </div>
-
-          <div class="notice">
-            <div class="notice-left">
-              <div class="notice-icon">✉️</div>
-              <div class="notice-text">
-                <div class="notice-title">새 메시지</div>
-                <div class="notice-sub">“자료 확인했어요.”</div>
-              </div>
-            </div>
-            <div class="notice-time">2m</div>
-          </div>
-
-          <div class="notice">
-            <div class="notice-left">
-              <div class="notice-icon">💡</div>
-              <div class="notice-text">
-                <div class="notice-title">알림</div>
-                <div class="notice-sub">설정에서 화면 밝기를 조절해보세요.</div>
-              </div>
-            </div>
-            <div class="notice-time">1h</div>
-          </div>
+        <div class="weather-main">
+          <div class="weather-temp" id="weatherTemp">19°</div>
+          <div class="weather-desc" id="weatherDesc">맑음</div>
         </div>
 
-        <div class="apps">
-          <div class="app-item" data-delay="0">
-            <div class="app" data-app="전화">
-              <div class="app-icon gradient-phone">☎</div>
-            </div>
-            <div class="app-name">전화</div>
-          </div>
+        <div class="weather-detail">
+          <span id="weatherHigh">최고 22°</span>
+          <span id="weatherLow">최저 14°</span>
+          <span id="weatherHumidity">습도 44%</span>
+        </div>
+      </div>
 
-          <div class="app-item" data-delay="80">
-            <div class="app" data-app="메시지">
-              <div class="app-icon gradient-message">💬</div>
-            </div>
-            <div class="app-name">메시지</div>
-          </div>
+      <div class="home-date" id="homeDate">10월 24일 금요일</div>
 
-          <div class="app-item" data-delay="160">
-            <div class="app" data-app="LINE">
-              <div class="app-icon gradient-line">L</div>
+      <div class="notifications">
+        <div class="notice">
+          <div class="notice-left">
+            <div class="notice-icon">📣</div>
+            <div>
+              <div class="notice-title">오늘 일정</div>
+              <div class="notice-sub">오후 3:00 회의</div>
             </div>
-            <div class="app-name">LINE</div>
           </div>
-
-          <div class="app-item" data-delay="240">
-            <div class="app" data-app="Instagram">
-              <div class="app-icon gradient-insta">◎</div>
-            </div>
-            <div class="app-name">Instagram</div>
-          </div>
-
-          <div class="app-item" data-delay="320">
-            <div class="app" data-app="캘린더">
-              <div class="app-icon gradient-blue">캘</div>
-            </div>
-            <div class="app-name">캘린더</div>
-          </div>
-
-          <div class="app-item" data-delay="400">
-            <div class="app" data-app="지도">
-              <div class="app-icon gradient-gray">맵</div>
-            </div>
-            <div class="app-name">지도</div>
-          </div>
-
-          <div class="app-item" data-delay="480">
-            <div class="app" data-app="설정">
-              <div class="app-icon gradient-red">설</div>
-            </div>
-            <div class="app-name">설정</div>
-          </div>
-
-          <div class="app-item" data-delay="560">
-            <div class="app" data-app="앱">
-              <div class="app-icon gradient-sky">앱</div>
-            </div>
-            <div class="app-name">앱</div>
-          </div>
+          <div class="notice-time">지금</div>
         </div>
 
-        <div class="dock">
+        <div class="notice">
+          <div class="notice-left">
+            <div class="notice-icon">✉️</div>
+            <div>
+              <div class="notice-title">새 메시지</div>
+              <div class="notice-sub">“자료 확인했어요.”</div>
+            </div>
+          </div>
+          <div class="notice-time">2m</div>
+        </div>
+
+        <div class="notice">
+          <div class="notice-left">
+            <div class="notice-icon">💡</div>
+            <div>
+              <div class="notice-title">알림</div>
+              <div class="notice-sub">설정에서 화면 밝기를 조절해보세요.</div>
+            </div>
+          </div>
+          <div class="notice-time">1h</div>
+        </div>
+      </div>
+
+      <div class="apps">
+        <div class="app-item" data-delay="0">
           <div class="app" data-app="전화">
             <div class="app-icon gradient-phone">☎</div>
           </div>
+          <div class="app-name">전화</div>
+        </div>
 
+        <div class="app-item" data-delay="80">
           <div class="app" data-app="메시지">
             <div class="app-icon gradient-message">💬</div>
           </div>
+          <div class="app-name">메시지</div>
+        </div>
 
+        <div class="app-item" data-delay="160">
           <div class="app" data-app="LINE">
             <div class="app-icon gradient-line">L</div>
           </div>
+          <div class="app-name">LINE</div>
+        </div>
 
+        <div class="app-item" data-delay="240">
           <div class="app" data-app="Instagram">
             <div class="app-icon gradient-insta">◎</div>
           </div>
+          <div class="app-name">Instagram</div>
+        </div>
+
+        <div class="app-item" data-delay="320">
+          <div class="app" data-app="캘린더">
+            <div class="app-icon gradient-blue">캘</div>
+          </div>
+          <div class="app-name">캘린더</div>
+        </div>
+
+        <div class="app-item" data-delay="400">
+          <div class="app" data-app="지도">
+            <div class="app-icon gradient-gray">맵</div>
+          </div>
+          <div class="app-name">지도</div>
+        </div>
+
+        <div class="app-item" data-delay="480">
+          <div class="app" data-app="설정">
+            <div class="app-icon gradient-red">설</div>
+          </div>
+          <div class="app-name">설정</div>
+        </div>
+
+        <div class="app-item" data-delay="560">
+          <div class="app" data-app="앱">
+            <div class="app-icon gradient-sky">앱</div>
+          </div>
+          <div class="app-name">앱</div>
         </div>
       </div>
 
-      <div class="home-indicator"></div>
+      <div class="dock">
+        <div class="app" data-app="전화">
+          <div class="app-icon gradient-phone">☎</div>
+        </div>
+        <div class="app" data-app="메시지">
+          <div class="app-icon gradient-message">💬</div>
+        </div>
+        <div class="app" data-app="LINE">
+          <div class="app-icon gradient-line">L</div>
+        </div>
+        <div class="app" data-app="Instagram">
+          <div class="app-icon gradient-insta">◎</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <div class="sheet">
+        <div class="sheet-header">
+          <div class="sheet-title" id="sheetTitle">앱</div>
+          <div class="closeBtn" id="closeBtn">×</div>
+        </div>
+        <div class="sheet-body" id="sheetBody"></div>
+      </div>
     </div>
   </div>
 
@@ -1047,32 +926,25 @@
 
     const lockScreen = document.getElementById("lockScreen");
     const homeScreen = document.getElementById("homeScreen");
-    const passcodeDots = [...document.querySelectorAll("#passcodeDots .dot")];
+    const overlay = document.getElementById("overlay");
+    const sheetBody = document.getElementById("sheetBody");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const closeBtn = document.getElementById("closeBtn");
+    const codeDots = [...document.querySelectorAll(".dot")];
     const keypad = document.getElementById("keypad");
-
-    const appMeta = {
-      "전화": { icon: "☎", color: "gradient-phone", quote: "사람들과 연결되는 가장 빠른 방법입니다." },
-      "메시지": { icon: "💬", color: "gradient-message", quote: "중요한 메시지를 바로 확인하세요." },
-      "LINE": { icon: "L", color: "gradient-line", quote: "대화와 소통을 편하게 이어가세요." },
-      "Instagram": { icon: "◎", color: "gradient-insta", quote: "사진과 순간을 기록해보세요." },
-      "캘린더": { icon: "캘", color: "gradient-blue", quote: "일정을 한눈에 관리해보세요." },
-      "지도": { icon: "맵", color: "gradient-gray", quote: "다음 목적지까지 가장 빠른 길을 찾습니다." },
-      "설정": { icon: "설", color: "gradient-red", quote: "기기 환경을 맞춤 설정해보세요." },
-      "앱": { icon: "앱", color: "gradient-sky", quote: "새로운 앱을 더 쉽게 찾아보세요." }
-    };
 
     function profileSvg(color1, color2) {
       const svg = `
         <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
           <defs>
             <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
-              <stop offset='0%' stop-color='${color1}' />
-              <stop offset='100%' stop-color='${color2}' />
+              <stop offset='0%' stop-color='${color1}'/>
+              <stop offset='100%' stop-color='${color2}'/>
             </linearGradient>
           </defs>
-          <rect width='100' height='100' rx='50' fill='url(#g)' />
-          <circle cx='50' cy='38' r='17' fill='rgba(255,255,255,0.75)' />
-          <path d='M25 80c4-15 18-22 25-22s21 7 25 22' fill='rgba(255,255,255,0.78)' />
+          <rect width='100' height='100' rx='50' fill='url(#g)'/>
+          <circle cx='50' cy='38' r='17' fill='rgba(255,255,255,0.75)'/>
+          <path d='M25 80c4-15 18-22 25-22s21 7 25 22' fill='rgba(255,255,255,0.78)'/>
         </svg>
       `;
       return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
@@ -1088,102 +960,111 @@
     ];
 
     function renderDots() {
-      passcodeDots.forEach((dot, index) => {
+      codeDots.forEach((dot, index) => {
         dot.classList.toggle("filled", index < input.length);
       });
     }
 
-    function animateKey(key) {
-      key.classList.remove("animate");
-      void key.offsetWidth;
-      key.classList.add("animate");
-      setTimeout(() => key.classList.remove("animate"), 180);
+    function updateClock() {
+      const now = new Date();
+      const timeFormatter = new Intl.DateTimeFormat("ko-KR", {
+        timeZone: "Asia/Seoul",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+      const dateFormatter = new Intl.DateTimeFormat("ko-KR", {
+        timeZone: "Asia/Seoul",
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      });
+      const dateLongFormatter = new Intl.DateTimeFormat("ko-KR", {
+        timeZone: "Asia/Seoul",
+        month: "long",
+        day: "numeric",
+        weekday: "long"
+      });
+
+      const time = timeFormatter.format(now);
+      document.getElementById("lockTimeText").textContent = time;
+      document.getElementById("lockTime").textContent = time;
+      document.getElementById("homeTime").textContent = time;
+
+      document.getElementById("lockDate").textContent = dateFormatter.format(now);
+      document.getElementById("homeDate").textContent = dateLongFormatter.format(now);
     }
 
-    function revealHomeApps() {
+    function showAppOverlay(appName) {
+      const meta = {
+        "전화": { icon: "☎", color: "gradient-phone", text: "사람들과 연결되는 가장 빠른 방법입니다." },
+        "메시지": { icon: "💬", color: "gradient-message", text: "중요한 메시지를 바로 확인하세요." },
+        "LINE": { icon: "L", color: "gradient-line", text: "대화와 소통을 편하게 이어가세요." },
+        "Instagram": { icon: "◎", color: "gradient-insta", text: "사진과 순간을 기록해보세요." },
+        "캘린더": { icon: "캘", color: "gradient-blue", text: "일정을 한눈에 관리해보세요." },
+        "지도": { icon: "맵", color: "gradient-gray", text: "다음 목적지까지 가장 빠른 길을 찾습니다." },
+        "설정": { icon: "설", color: "gradient-red", text: "기기 환경을 맞춤 설정해보세요." },
+        "앱": { icon: "앱", color: "gradient-sky", text: "새로운 앱을 더 쉽게 찾아보세요." }
+      };
+
+      const data = meta[appName] || meta["앱"];
+      sheetTitle.textContent = appName;
+      sheetBody.innerHTML = `
+        <div class="generic-sheet">
+          <div class="generic-icon ${data.color}">${data.icon}</div>
+          <div class="generic-name">${appName}</div>
+          <div class="generic-text">${data.text}</div>
+          <div class="badges">
+            <span class="badge">실시간</span>
+            <span class="badge">알림</span>
+            <span class="badge">편리함</span>
+          </div>
+        </div>
+      `;
+      overlay.classList.add("show");
+    }
+
+    function showMessageList() {
+      sheetTitle.textContent = "메시지";
+      sheetBody.innerHTML = `
+        <div class="sheet-top">
+          <div>대화</div>
+          <div>✎</div>
+        </div>
+        <div class="searchBox">검색</div>
+        <ul class="msg-list">
+          ${messageContacts.map(contact => `
+            <li class="msg-item">
+              <div class="avatar" style="background-image: url('${contact.avatar}');"></div>
+              <div class="msg-meta">
+                <div class="msg-name">${contact.name}</div>
+                <div class="msg-preview">${contact.preview}</div>
+              </div>
+              <div class="msg-time">${contact.time}</div>
+            </li>
+          `).join("")}
+        </ul>
+      `;
+      overlay.classList.add("show");
+    }
+
+    closeBtn.addEventListener("click", () => {
+      overlay.classList.remove("show");
+    });
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) overlay.classList.remove("show");
+    });
+
+    function revealAppIcons() {
       const items = document.querySelectorAll(".app-item");
-      items.forEach((item) => {
+      items.forEach((item, i) => {
         const delay = Number(item.dataset.delay || 0);
-        setTimeout(() => {
-          item.classList.add("visible");
-        }, delay);
+        setTimeout(() => item.classList.add("visible"), delay);
       });
     }
 
-    function openGenericApp(name) {
-      const meta = appMeta[name] || appMeta["앱"];
-      const overlay = document.createElement("div");
-      overlay.className = "app-overlay active generic";
-      overlay.innerHTML = `
-        <div class="app-sheet">
-          <div class="sheet-header">
-            <div class="sheet-title">${name}</div>
-            <div class="close-btn" id="closeOverlay">×</div>
-          </div>
-          <div class="sheet-body">
-            <div class="sheet-icon ${meta.color}">${meta.icon}</div>
-            <div class="sheet-name">${name}</div>
-            <div class="sheet-quote">${meta.quote}</div>
-            <div class="sheet-badges">
-              <div class="badge">실시간</div>
-              <div class="badge">알림</div>
-              <div class="badge">편리함</div>
-            </div>
-          </div>
-        </div>
-      `;
-      document.querySelector(".screen").appendChild(overlay);
-
-      const closeBtn = overlay.querySelector("#closeOverlay");
-      closeBtn.addEventListener("click", () => overlay.remove());
-
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) overlay.remove();
-      });
-    }
-
-    function openMessageApp() {
-      const overlay = document.createElement("div");
-      overlay.className = "app-overlay active";
-      overlay.innerHTML = `
-        <div class="app-sheet" style="width: 86%; height: 78%;">
-          <div class="sheet-header">
-            <div class="sheet-title">메시지</div>
-            <div class="close-btn" id="closeOverlay">×</div>
-          </div>
-          <div class="sheet-body">
-            <div class="sheet-topbar">
-              <div class="left">대화</div>
-              <div class="right">✎</div>
-            </div>
-            <div class="msg-search">검색</div>
-            <ul class="msg-list">
-              ${messageContacts.map((contact) => `
-                <li class="msg-item">
-                  <div class="avatar" style="background-image: url('${contact.avatar}');"></div>
-                  <div class="msg-meta">
-                    <div class="msg-name">${contact.name}</div>
-                    <div class="msg-preview">${contact.preview}</div>
-                  </div>
-                  <div class="msg-time">${contact.time}</div>
-                </li>
-              `).join("")}
-            </ul>
-          </div>
-        </div>
-      `;
-
-      document.querySelector(".screen").appendChild(overlay);
-
-      const closeBtn = overlay.querySelector("#closeOverlay");
-      closeBtn.addEventListener("click", () => overlay.remove());
-
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) overlay.remove();
-      });
-    }
-
-    function unlockDevice() {
+    function unlockPhone() {
       if (input !== correctCode) {
         input = "";
         renderDots();
@@ -1192,133 +1073,17 @@
 
       lockScreen.classList.add("hidden");
       homeScreen.classList.add("active");
-
-      setTimeout(revealHomeApps, 180);
+      setTimeout(revealAppIcons, 160);
     }
 
-    function getKoreaTime() {
-      const now = new Date();
-      const formatter = new Intl.DateTimeFormat("ko-KR", {
-        timeZone: "Asia/Seoul",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      });
-      return formatter.format(now);
-    }
+    function handleKeyPress(keyEl) {
+      keyEl.classList.remove("pressed");
+      void keyEl.offsetWidth;
+      keyEl.classList.add("pressed");
+      setTimeout(() => keyEl.classList.remove("pressed"), 120);
 
-    function getKoreaDateText() {
-      const now = new Date();
-      const formatter = new Intl.DateTimeFormat("ko-KR", {
-        timeZone: "Asia/Seoul",
-        weekday: "long",
-        month: "long",
-        day: "numeric"
-      });
-      return formatter.format(now);
-    }
-
-    function getKoreaFullDateText() {
-      const now = new Date();
-      const formatter = new Intl.DateTimeFormat("ko-KR", {
-        timeZone: "Asia/Seoul",
-        month: "long",
-        day: "numeric",
-        weekday: "long"
-      });
-      return formatter.format(now);
-    }
-
-    function updateClock() {
-      const currentTime = getKoreaTime();
-      document.getElementById("lockStatusTime").textContent = currentTime;
-      document.getElementById("lockTime").textContent = currentTime;
-      document.getElementById("homeStatusTime").textContent = currentTime;
-
-      document.getElementById("lockDate").textContent = getKoreaDateText();
-      document.getElementById("homeDate").textContent = getKoreaFullDateText();
-    }
-
-    function weatherCodeToText(code) {
-      const map = {
-        0: { icon: "☀️", desc: "맑음" },
-        1: { icon: "🌤️", desc: "대체로 맑음" },
-        2: { icon: "⛅", desc: "부분적으로 흐림" },
-        3: { icon: "☁️", desc: "흐림" },
-        45: { icon: "🌫️", desc: "안개" },
-        48: { icon: "🌫️", desc: "짙은 안개" },
-        51: { icon: "🌦️", desc: "약한 이슬비" },
-        53: { icon: "🌦️", desc: "이슬비" },
-        55: { icon: "🌧️", desc: "강한 이슬비" },
-        56: { icon: "🌧️", desc: "차가운 이슬비" },
-        57: { icon: "🌧️", desc: "강한 차가운 이슬비" },
-        61: { icon: "🌧️", desc: "약한 비" },
-        63: { icon: "🌧️", desc: "비" },
-        65: { icon: "🌧️", desc: "강한 비" },
-        71: { icon: "🌨️", desc: "약한 눈" },
-        73: { icon: "🌨️", desc: "눈" },
-        75: { icon: "🌨️", desc: "강한 눈" },
-        80: { icon: "🌧️", desc: "소나기" },
-        81: { icon: "🌧️", desc: "강한 소나기" },
-        82: { icon: "🌧️", desc: "매우 강한 소나기" },
-        95: { icon: "⛈️", desc: "뇌우" },
-        96: { icon: "⛈️", desc: "뇌우(우박)" },
-        99: { icon: "⛈️", desc: "강한 뇌우" }
-      };
-      return map[code] || { icon: "☀️", desc: "맑음" };
-    }
-
-    async function loadWeather() {
-      const url = "https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,relative_humidity_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul&forecast_days=1";
-
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!data || !data.current) return;
-
-        const currentTemp = Math.round(data.current.temperature_2m);
-        const humidity = Math.round(data.current.relative_humidity_2m);
-        const code = data.current.weather_code;
-        const weather = weatherCodeToText(code);
-
-        const maxTemp = Math.round(data.daily.temperature_2m_max[0]);
-        const minTemp = Math.round(data.daily.temperature_2m_min[0]);
-
-        document.getElementById("weatherTemp").textContent = `${currentTemp}°`;
-        document.getElementById("weatherDesc").textContent = weather.desc;
-        document.getElementById("weatherIcon").textContent = weather.icon;
-        document.getElementById("weatherHigh").textContent = `최고 ${maxTemp}°`;
-        document.getElementById("weatherLow").textContent = `최저 ${minTemp}°`;
-        document.getElementById("weatherHumidity").textContent = `습도 ${humidity}%`;
-      } catch (err) {
-        document.getElementById("weatherTemp").textContent = "19°";
-        document.getElementById("weatherDesc").textContent = "맑음";
-        document.getElementById("weatherIcon").textContent = "☀️";
-        document.getElementById("weatherHigh").textContent = "최고 22°";
-        document.getElementById("weatherLow").textContent = "최저 14°";
-        document.getElementById("weatherHumidity").textContent = "습도 44%";
-      }
-    }
-
-    document.querySelectorAll(".app").forEach((app) => {
-      app.addEventListener("click", () => {
-        const appName = app.dataset.app || "앱";
-        if (appName === "메시지") {
-          openMessageApp();
-        } else {
-          openGenericApp(appName);
-        }
-      });
-    });
-
-    keypad.addEventListener("click", (event) => {
-      const key = event.target.closest(".key");
-      if (!key) return;
-
-      animateKey(key);
-
-      const value = key.dataset.value;
-      const action = key.dataset.action;
+      const value = keyEl.dataset.value;
+      const action = keyEl.dataset.action;
 
       if (action === "clear") {
         input = "";
@@ -1327,7 +1092,7 @@
       }
 
       if (action === "unlock") {
-        unlockDevice();
+        unlockPhone();
         return;
       }
 
@@ -1337,16 +1102,94 @@
 
         if (input.length === 4) {
           setTimeout(() => {
-            unlockDevice();
-          }, 180);
+            unlockPhone();
+          }, 150);
         }
       }
+    }
+
+    keypad.addEventListener("click", (event) => {
+      const key = event.target.closest(".key");
+      if (!key) return;
+      handleKeyPress(key);
+    });
+
+    keypad.addEventListener("pointerdown", (event) => {
+      const key = event.target.closest(".key");
+      if (!key) return;
+      key.classList.add("pressed");
+    });
+
+    keypad.addEventListener("pointerup", (event) => {
+      const key = event.target.closest(".key");
+      if (!key) return;
+      key.classList.remove("pressed");
+    });
+
+    document.querySelectorAll(".app").forEach((app) => {
+      app.addEventListener("click", () => {
+        const name = app.dataset.app || "앱";
+        if (name === "메시지") {
+          showMessageList();
+        } else {
+          showAppOverlay(name);
+        }
+      });
     });
 
     renderDots();
     updateClock();
-    loadWeather();
     setInterval(updateClock, 1000);
+
+    // weather fallback
+    async function loadWeather() {
+      try {
+        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,relative_humidity_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul&forecast_days=1");
+        const data = await res.json();
+        if (!data || !data.current) return;
+
+        const temp = Math.round(data.current.temperature_2m);
+        const humid = Math.round(data.current.relative_humidity_2m);
+        const weatherCode = data.current.weather_code;
+        const max = Math.round(data.daily.temperature_2m_max[0]);
+        const min = Math.round(data.daily.temperature_2m_min[0]);
+
+        const map = {
+          0: { icon: "☀️", desc: "맑음" },
+          1: { icon: "🌤️", desc: "대체로 맑음" },
+          2: { icon: "⛅", desc: "부분적으로 흐림" },
+          3: { icon: "☁️", desc: "흐림" },
+          45: { icon: "🌫️", desc: "안개" },
+          48: { icon: "🌫️", desc: "짙은 안개" },
+          51: { icon: "🌦️", desc: "약한 이슬비" },
+          53: { icon: "🌦️", desc: "이슬비" },
+          55: { icon: "🌧️", desc: "강한 이슬비" },
+          61: { icon: "🌧️", desc: "약한 비" },
+          63: { icon: "🌧️", desc: "비" },
+          65: { icon: "🌧️", desc: "강한 비" },
+          71: { icon: "🌨️", desc: "약한 눈" },
+          73: { icon: "🌨️", desc: "눈" },
+          75: { icon: "🌨️", desc: "강한 눈" },
+          80: { icon: "🌧️", desc: "소나기" },
+          81: { icon: "🌧️", desc: "강한 소나기" },
+          82: { icon: "🌧️", desc: "매우 강한 소나기" },
+          95: { icon: "⛈️", desc: "뇌우" }
+        };
+
+        const weather = map[weatherCode] || { icon: "☀️", desc: "맑음" };
+
+        document.getElementById("weatherTemp").textContent = `${temp}°`;
+        document.getElementById("weatherDesc").textContent = weather.desc;
+        document.getElementById("weatherIcon").textContent = weather.icon;
+        document.getElementById("weatherHigh").textContent = `최고 ${max}°`;
+        document.getElementById("weatherLow").textContent = `최저 ${min}°`;
+        document.getElementById("weatherHumidity").textContent = `습도 ${humid}%`;
+      } catch (e) {
+        // 기본값 유지
+      }
+    }
+
+    loadWeather();
   </script>
 </body>
 </html>
