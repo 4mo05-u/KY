@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iPhone Style Dark Home Screen</title>
+  <title>iPhone Home Screen with More Apps</title>
   <style>
     :root {
       --bg-1: #050505;
       --bg-2: #121212;
-      --panel: rgba(255, 255, 255, 0.12);
+      --panel: rgba(255,255,255,0.12);
       --panel-strong: rgba(255,255,255,0.18);
       --text: #f5f5f5;
-      --muted: rgba(255,255,255,0.7);
-      --shadow: rgba(0, 0, 0, 0.45);
+      --muted: rgba(255,255,255,0.72);
+      --shadow: rgba(0,0,0,0.45);
       --blue: #5fa8ff;
       --green: #7ee081;
       --teal: #5fd6d0;
@@ -67,7 +67,7 @@
       font-size: 14px;
       font-weight: 600;
       letter-spacing: 0.2px;
-      z-index: 4;
+      z-index: 6;
       color: rgba(255,255,255,0.92);
     }
 
@@ -174,7 +174,7 @@
       -webkit-backdrop-filter: blur(16px);
       box-shadow: 0 14px 30px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.04);
       padding: 18px 18px 14px;
-      z-index: 3;
+      z-index: 5;
     }
 
     .weather-header {
@@ -274,27 +274,17 @@
       font-weight: 500;
     }
 
-    .status-line {
-      opacity: 0.8;
-    }
+    .status-line { opacity: 0.8; }
 
-    .dock {
+    .apps-grid {
       position: absolute;
-      left: 16px;
-      right: 16px;
-      bottom: 18px;
-      height: 108px;
-      border-radius: 28px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255,255,255,0.1);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 10px 20px rgba(0,0,0,0.18);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 0 10px;
-      z-index: 10;
+      left: 20px;
+      right: 20px;
+      top: 230px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px 8px;
+      z-index: 4;
     }
 
     .app {
@@ -303,17 +293,18 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      width: 64px;
+      min-height: 88px;
       color: rgba(255,255,255,0.9);
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 500;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+      letter-spacing: -0.2px;
     }
 
     .icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
+      width: 52px;
+      height: 52px;
+      border-radius: 15px;
       position: relative;
       box-shadow:
         inset 0 1px 1px rgba(255,255,255,0.18),
@@ -338,42 +329,53 @@
     .phone-app { background: linear-gradient(135deg, #72d88a, #28b16f); }
     .kakao { background: linear-gradient(135deg, #ffd84d, #f7c63d); }
     .insta { background: linear-gradient(135deg, #ffcb57, #ff4f7b 40%, #8a3df4 80%); }
+    .royal { background: linear-gradient(135deg, #f8e7bd, #d9b35b 40%, #7a5823); }
+    .piano { background: linear-gradient(135deg, #ffdd57, #ffb800 50%, #ff8f1f); }
+    .spotify { background: linear-gradient(135deg, #1ed760, #128d46); }
+    .gpt { background: linear-gradient(135deg, #222, #0f0f10 60%, #1b1b1b); }
+    .youtube { background: linear-gradient(135deg, #ff4b4b, #ff1f1f); }
+    .musinsa { background: linear-gradient(135deg, #111, #1d1d1d, #2a2a2a); }
 
-    .messages::after {
-      content: "💬";
-      position: relative;
-      z-index: 1;
-      font-size: 22px;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+    .messages::after { content: "💬"; position: relative; z-index: 1; font-size: 22px; }
+    .phone-app::after { content: "📞"; position: relative; z-index: 1; font-size: 22px; }
+    .kakao::after { content: "💬"; position: relative; z-index: 1; font-size: 22px; }
+    .insta::after { content: "◎"; position: relative; z-index: 1; font-size: 22px; }
+    .royal::after { content: "♛"; position: relative; z-index: 1; font-size: 24px; }
+    .piano::after { content: "🎹"; position: relative; z-index: 1; font-size: 22px; }
+    .spotify::after { content: "◉"; position: relative; z-index: 1; font-size: 20px; }
+    .gpt::after { content: "◌"; position: relative; z-index: 1; font-size: 22px; }
+    .youtube::after { content: "▶"; position: relative; z-index: 1; font-size: 22px; }
+    .musinsa::after { content: "M"; position: relative; z-index: 1; font-size: 22px; font-weight: 800; }
+
+    .dock {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 18px;
+      height: 110px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 10px 20px rgba(0,0,0,0.18);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 10;
     }
 
-    .phone-app::after {
-      content: "📞";
-      position: relative;
-      z-index: 1;
-      font-size: 22px;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+    .dock .app {
+      min-height: 0;
+      width: 64px;
+      font-size: 10px;
     }
 
-    .kakao::after {
-      content: "💬";
-      position: relative;
-      z-index: 1;
-      font-size: 22px;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
-    }
-
-    .insta::after {
-      content: "◎";
-      position: relative;
-      z-index: 1;
-      font-size: 22px;
-      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
-    }
-
-    .app-name {
-      opacity: 0.9;
-      letter-spacing: -0.1px;
+    .dock .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
     }
 
     @media (max-width: 430px) {
@@ -415,25 +417,97 @@
       </div>
     </div>
 
-    <div class="dock">
+    <div class="apps-grid">
       <div class="app">
         <div class="icon messages"></div>
-        <div class="app-name">Messages</div>
+        <div>Messages</div>
       </div>
 
       <div class="app">
         <div class="icon phone-app"></div>
-        <div class="app-name">Phone</div>
+        <div>Phone</div>
       </div>
 
       <div class="app">
         <div class="icon kakao"></div>
-        <div class="app-name">KakaoTalk</div>
+        <div>KakaoTalk</div>
       </div>
 
       <div class="app">
         <div class="icon insta"></div>
-        <div class="app-name">Instagram</div>
+        <div>Instagram</div>
+      </div>
+
+      <div class="app">
+        <div class="icon royal"></div>
+        <div>클래식 로얄</div>
+      </div>
+
+      <div class="app">
+        <div class="icon piano"></div>
+        <div>피아노 타일2</div>
+      </div>
+
+      <div class="app">
+        <div class="icon spotify"></div>
+        <div>Spotify</div>
+      </div>
+
+      <div class="app">
+        <div class="icon gpt"></div>
+        <div>ChatGPT</div>
+      </div>
+
+      <div class="app">
+        <div class="icon youtube"></div>
+        <div>YouTube</div>
+      </div>
+
+      <div class="app">
+        <div class="icon musinsa"></div>
+        <div>무신사</div>
+      </div>
+    </div>
+
+    <div class="dock">
+      <div class="app">
+        <div class="icon messages"></div>
+        <div>Messages</div>
+      </div>
+
+      <div class="app">
+        <div class="icon phone-app"></div>
+        <div>Phone</div>
+      </div>
+
+      <div class="app">
+        <div class="icon kakao"></div>
+        <div>KakaoTalk</div>
+      </div>
+
+      <div class="app">
+        <div class="icon insta"></div>
+        <div>Instagram</div>
+      </div>
+
+      <div class="app">
+        <div class="icon spotify"></div>
+        <div>Spotify</div>
+      </div>
+
+      <div class="app">
+        <div class="icon gpt"></div>
+        <div>ChatGPT</div>
+      </div>
+
+      <div class="app">
+        <div class="icon youtube"></div>
+        <div>YouTube</div>
+      </div>
+
+      <div class="app">
+        <div class="icon musinsa"></div>
+        <div>무신사</div>
       </div>
     </div>
   </div>
